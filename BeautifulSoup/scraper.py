@@ -1,9 +1,12 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_restful import Api, Resource, reqparse
 import random
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
+from flask.blueprints import Blueprint
+
+from CRUD.crud import app as product_app
 
 # Flask is running on http://127.0.0.1:5000/search/iphone
 
@@ -20,6 +23,10 @@ class PriceRunnerAPI:
     def __init__(self):
         self.app = Flask(__name__)
         self.api = Api(self.app)
+
+        self.product_blueprint = Blueprint('product_api', __name__)
+        self.product_blueprint.route('/')(product_app)
+        self.app.register_blueprint(self.product_blueprint, url_prefix='/products')
 
         self.url = None
 
@@ -67,5 +74,23 @@ class PriceRunnerAPI:
             products = self.search_product(product_name)
 
             return jsonify(products)
+
+        @self.app.route('/products', methods=['GET'])
+        def get_products():
+            return jsonify(self.products)
+
+        @self.app.route('/products', methods=['POST'])
+        def create_product():
+            data = request.json
+            self.products.append(data)
+            return jsonify(data), 201
+
+        @self.app.route('/products/<int:product_id>', methods=['DELETE'])
+        def delete_product(product_id):
+            if product_id < len(self.products):
+                deleted_product = self.products.pop(product_id)
+                return jsonify(deleted_product), 200
+            else:
+                return '', 404
 
         self.app.run(debug=True)
