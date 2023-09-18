@@ -1,5 +1,4 @@
 import BeautifulSoup.scraper as scraper
-import CRUD.crud as crud
 
 
 def main():
