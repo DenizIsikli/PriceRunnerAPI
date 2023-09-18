@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from flask.blueprints import Blueprint
 
-from CRUD.crud import app as product_app
 
 # Flask is running on http://127.0.0.1:5000/search/iphone
 
@@ -23,10 +22,6 @@ class PriceRunnerAPI:
     def __init__(self):
         self.app = Flask(__name__)
         self.api = Api(self.app)
-
-        self.product_blueprint = Blueprint('product_api', __name__)
-        self.product_blueprint.route('/')(product_app)
-        self.app.register_blueprint(self.product_blueprint, url_prefix='/products')
 
         self.url = None
 
