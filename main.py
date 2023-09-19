@@ -1,4 +1,4 @@
-import BeautifulSoup.scraper as scraper
+import Scraper.scraper as scraper
 
 
 def main():
