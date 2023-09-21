@@ -4,7 +4,7 @@ PriceRunnerAPI is a RESTful API that allows you to search for products on the Da
 
 ## Base URL
 
-The base URL for the PriceRunnerAPI is `https://www.example.com/api/`.
+The base URL for the PriceRunnerAPI is `https://rapidapi.com/denizisikli5/api/pricerunner`.
 
 ## Versioning
 
