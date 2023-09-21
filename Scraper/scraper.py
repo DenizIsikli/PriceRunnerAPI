@@ -72,32 +72,3 @@ class PriceRunnerAPI:
                 return jsonify(products)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
-
-        @self.app.route('/products', methods=['GET'])
-        def get_products():
-            try:
-                return jsonify(self.products)
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
-        @self.app.route('/products', methods=['POST'])
-        def create_product():
-            try:
-                data = request.json
-                self.products.append(data)
-                return jsonify(data), 201
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
-        @self.app.route('/products/<int:product_id>', methods=['DELETE'])
-        def delete_product(product_id):
-            try:
-                if product_id < len(self.products):
-                    deleted_product = self.products.pop(product_id)
-                    return jsonify(deleted_product), 200
-                else:
-                    return '', 404
-            except Exception as e:
-                return jsonify({'error': str(e)}), 500
-
-        self.app.run(debug=True)
