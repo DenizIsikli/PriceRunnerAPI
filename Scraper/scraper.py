@@ -59,32 +59,45 @@ class PriceRunnerAPI:
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
         return self.products
 
     def run(self):
         @self.app.route('/search/<product_name>')
         def search_route(product_name):
-            products = self.search_product(product_name)
-
-            return jsonify(products)
+            try:
+                products = self.search_product(product_name)
+                return jsonify(products)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/products', methods=['GET'])
         def get_products():
-            return jsonify(self.products)
+            try:
+                return jsonify(self.products)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/products', methods=['POST'])
         def create_product():
-            data = request.json
-            self.products.append(data)
-            return jsonify(data), 201
+            try:
+                data = request.json
+                self.products.append(data)
+                return jsonify(data), 201
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         @self.app.route('/products/<int:product_id>', methods=['DELETE'])
         def delete_product(product_id):
-            if product_id < len(self.products):
-                deleted_product = self.products.pop(product_id)
-                return jsonify(deleted_product), 200
-            else:
-                return '', 404
+            try:
+                if product_id < len(self.products):
+                    deleted_product = self.products.pop(product_id)
+                    return jsonify(deleted_product), 200
+                else:
+                    return '', 404
+            except Exception as e:
+                return jsonify({'error': str(e)}), 500
 
         self.app.run(debug=True)
