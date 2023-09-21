@@ -3,7 +3,7 @@ from flask_restful import Api
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-
+from cachetools import cached, TTLCache
 
 # Flask is running on http://127.0.0.1:5000/search/iphone
 
@@ -20,16 +20,17 @@ class PriceRunnerAPI:
     def __init__(self):
         self.app = Flask(__name__)
         self.api = Api(self.app)
-
         self.url = None
-
         self.products = []
-
         self.name = None
         self.info = None
         self.price = None
         self.link = None
 
+    # Create a cache with a TTL (time-to-live) of 300 seconds
+    cache = TTLCache(maxsize=100, ttl=300)
+
+    @cached(cache)
     def search_product(self, product_name):
         self.url = 'https://www.pricerunner.dk/search?q=' + product_name.replace(" ", "+")
 
