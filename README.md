@@ -29,5 +29,3 @@ The API uses standard HTTP status codes to indicate the success or failure of a 
   - `product_name` (string): The name of the product to search for.
 
 This API is designed to provide easy access to product information from PriceRunner Denmark. You can use it to search for products. Enjoy exploring the world of products with PriceRunnerAPI!
-
-For detailed usage instructions and examples, please refer to the [PriceRunnerAPI Documentation](Documentation.md).
