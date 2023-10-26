@@ -27,6 +27,8 @@ class PriceRunnerAPI:
         self.price = None
         self.link = None
 
+        self.port = 5000
+
     # Create a cache with a TTL (time-to-live) of 300 seconds
     cache = TTLCache(maxsize=100, ttl=300)
 
@@ -72,3 +74,5 @@ class PriceRunnerAPI:
                 return jsonify(products)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+
+        self.app.run(port=self.port, debug=True)
