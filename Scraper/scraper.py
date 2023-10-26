@@ -5,8 +5,6 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from cachetools import cached, TTLCache
 
-# Flask is running on http://127.0.0.1:5000/search/iphone
-
 
 @dataclass
 class Product:
