@@ -4,7 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from cachetools import cached, TTLCache
-
+from database import Database  # Import the Database class
 
 @dataclass
 class Product:
@@ -12,7 +12,6 @@ class Product:
     info: str = None
     price: int = None
     link: str = None
-
 
 class PriceRunnerAPI:
     def __init__(self):
@@ -24,8 +23,16 @@ class PriceRunnerAPI:
         self.info = None
         self.price = None
         self.link = None
-
         self.port = 5000
+
+        # Initialize the database connection
+        self.db = Database(
+            database="mydatabase",
+            user="myuser",
+            password="mypassword",
+            host="localhost",
+            port="5432"
+        )
 
     # Create a cache with a TTL (time-to-live) of 300 seconds
     cache = TTLCache(maxsize=100, ttl=300)
@@ -69,6 +76,13 @@ class PriceRunnerAPI:
         def search_route(product_name):
             try:
                 products = self.search_product(product_name)
+
+                # Example: Insert data into the database
+                insert_query = "INSERT INTO mytable (name, info, price, link) VALUES (%s, %s, %s, %s)"
+                for product in products:
+                    data_to_insert = (product.name, product.info, product.price, product.link)
+                    self.db.execute_update(insert_query, data_to_insert)
+
                 return jsonify(products)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
