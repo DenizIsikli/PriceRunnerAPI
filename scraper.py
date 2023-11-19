@@ -1,10 +1,12 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from flask_restful import Api
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from cachetools import cached, TTLCache
-from database import Database  # Import the Database class
+from database import Database
+import psycopg2
+
 
 @dataclass
 class Product:
@@ -13,11 +15,12 @@ class Product:
     price: int = None
     link: str = None
 
+
 class PriceRunnerAPI:
     def __init__(self):
         self.app = Flask(__name__)
         self.api = Api(self.app)
-        self.url = None
+        self.url = "https://www.pricerunner.dk"
         self.products = []
         self.name = None
         self.info = None
@@ -25,21 +28,38 @@ class PriceRunnerAPI:
         self.link = None
         self.port = 5000
 
-        # Initialize the database connection
-        self.db = Database(
-            database="mydatabase",
-            user="myuser",
-            password="mypassword",
-            host="localhost",
-            port="5432"
-        )
+        try:
+            self.db = Database(
+                database="PriceRunner",
+                user="postgres",
+                password="postgres123",
+                host="localhost",
+                port="5432"
+            )
+        except psycopg2.OperationalError as e:
+            print(f"Error connecting to the database: {e}")
+
+    @staticmethod
+    def scrape_product_data(item_div):
+        name_element = item_div.find('h3', class_='pr-c6rk6p')
+        info_element = item_div.find('p', class_='pr-f6mg9h')
+        price_element = item_div.find('span', class_='pr-yp1q6p')
+
+        # Extract product information within each product's container
+        name = name_element.text if name_element else None
+        info = info_element.text if info_element else None
+        price = price_element.text if price_element else None
+        price = price.replace('\xa0', '')
+        link = item_div.find('a')['href']
+
+        return Product(name, info, price, link)
 
     # Create a cache with a TTL (time-to-live) of 300 seconds
     cache = TTLCache(maxsize=100, ttl=300)
 
     @cached(cache)
     def search_product(self, product_name):
-        self.url = 'https://www.pricerunner.dk/search?q=' + product_name.replace(" ", "+")
+        self.url = f'{self.url}/search?q=' + product_name.replace(" ", "+")
 
         try:
             response = requests.get(self.url)
@@ -50,15 +70,8 @@ class PriceRunnerAPI:
 
                 if product_div:
                     for item_div in product_div.find_all('div', class_='pr-1k8dg1g'):
-                        # Extract product information within each product's container
-                        self.name = item_div.find('h3', class_='pr-z2tzuf').text
-                        self.info = item_div.find('p', class_='pr-1qhwt5w').text
-                        self.price = item_div.find('span', class_='pr-yp1q6p').text
-                        self.price = self.price.replace('\xa0', '')
-                        self.link = item_div.find('a')['href']
-
-                        product_dict = {'name': self.name, 'info': self.info, 'price': self.price, 'link': self.link}
-                        self.products.append(Product(**product_dict))
+                        product = self.scrape_product_data(item_div)
+                        self.products.append(Product(product.name, product.info, product.price, product.link))
                         print(self.products)
 
                 if soup.find('button', class_='pr-5cnc2s'):
@@ -71,20 +84,50 @@ class PriceRunnerAPI:
 
         return self.products
 
+    def get_product_by_name(self, product_name):
+        query = "SELECT * FROM mytable WHERE name = %s"
+        result = self.db.execute_query(query, (product_name,))
+        if result:
+            return jsonify(result)
+        return jsonify({'message': 'Product not found'}), 404
+
+    def update_product_price(self, product_name, new_price):
+        query = "UPDATE mytable SET price = %s WHERE name = %s"
+        self.db.execute_update(query, (product_name, new_price))
+        return jsonify({'message': 'Product price updated successfully'})
+
+    def delete_product(self, product_name):
+        query = "DELETE FROM mytable WHERE name = %s"
+        self.db.execute_update(query, (product_name,))
+        return jsonify({'message': 'Product deleted successfully'})
+
     def run(self):
         @self.app.route('/search/<product_name>')
         def search_route(product_name):
             try:
                 products = self.search_product(product_name)
+                insert_query = "INSERT INTO mytable (name, ifo, price, link) VALUES (%s, %s, %s, %s)"
 
-                # Example: Insert data into the database
-                insert_query = "INSERT INTO mytable (name, info, price, link) VALUES (%s, %s, %s, %s)"
                 for product in products:
                     data_to_insert = (product.name, product.info, product.price, product.link)
-                    self.db.execute_update(insert_query, data_to_insert)
+                    # self.db.execute_update(insert_query, data_to_insert)
+                    return jsonify(products)
 
-                return jsonify(products)
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
+
+        @self.app.route('/products/<product_name>', methods=['GET', 'PUT', 'DELETE'])
+        def product_operations(product_name):
+            if request.method == 'GET':
+                return self.get_product_by_name(product_name)
+
+            elif request.method == 'PUT':
+                new_price = request.json.get('price')  # Assume updating the price
+                return self.update_product_price(product_name, new_price)
+
+            elif request.method == 'DELETE':
+                return self.delete_product(product_name)
+
+            return jsonify({'error': 'Invalid request method'}), 405
 
         self.app.run(port=self.port, debug=True)
