@@ -3,7 +3,6 @@ from flask_restful import Api
 import requests
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
-from cachetools import cached, TTLCache
 from database import Database
 
 
@@ -33,13 +32,13 @@ class PriceRunnerAPI:
         name_element = item_div.find('h3', class_='pr-c6rk6p')
         info_element = item_div.find('p', class_='pr-f6mg9h')
         price_element = item_div.find('span', class_='pr-yp1q6p')
+        link_element = item_div.find('a')['href']
 
         # Extract product information within each product's container
         name = name_element.text if name_element else None
         info = info_element.text if info_element else None
-        price = price_element.text if price_element else None
-        price = price.replace('\xa0', '')
-        link = item_div.find('a')['href']
+        price = price_element.text.replace('\xa0', '') if price_element else None
+        link = f"https://www.pricerunner.dk{link_element}" if link_element else None
 
         return Product(name, info, price, link)
 
