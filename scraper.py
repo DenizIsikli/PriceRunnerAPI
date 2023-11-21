@@ -34,7 +34,7 @@ class PriceRunnerAPI:
         price_element = item_div.find('span', class_='pr-yp1q6p')
         link_element = item_div.find('a')['href']
 
-        # Extract product information within each product's container
+        # Extract product information in text format within each product's container
         name = name_element.text if name_element else None
         info = info_element.text if info_element else None
         price = price_element.text.replace('\xa0', '') if price_element else None
@@ -59,7 +59,7 @@ class PriceRunnerAPI:
                         self.products.append(Product(product.name, product.info, product.price, product.link))
 
                 if soup.find('button', class_='pr-5cnc2s'):
-                    return self.products
+                    pass
 
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
@@ -92,9 +92,13 @@ class PriceRunnerAPI:
             try:
                 # self.db.add_product(product)
                 products = self.search_product(product_name)
-                response_str = '\n'.join(str(product) for product in products)
-                print(response_str)
-                return jsonify(products)
+
+                if products:
+                    response_str = '\n'.join(f"{i+1}: {product}" for i, product in enumerate(products))
+                    print(response_str)
+                    return jsonify(products)
+                else:
+                    return jsonify({'message': 'No products found'}), 404
 
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
