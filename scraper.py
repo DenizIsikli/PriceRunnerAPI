@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Flask, jsonify, request
 from flask_restful import Api
 import requests
@@ -5,7 +6,6 @@ from bs4 import BeautifulSoup
 from dataclasses import dataclass
 from cachetools import cached, TTLCache
 from database import Database
-import psycopg2
 
 
 @dataclass
@@ -29,14 +29,8 @@ class PriceRunnerAPI:
         self.port = 5000
 
         try:
-            self.db = Database(
-                database="PriceRunner",
-                user="postgres",
-                password="postgres123",
-                host="localhost",
-                port="5432"
-            )
-        except psycopg2.OperationalError as e:
+            self.db = Database('pricerunner.db')
+        except sqlite3.Error as e:
             print(f"Error connecting to the database: {e}")
 
     @staticmethod
@@ -59,7 +53,7 @@ class PriceRunnerAPI:
 
     @cached(cache)
     def search_product(self, product_name):
-        self.url = f'{self.url}/search?q=' + product_name.replace(" ", "+")
+        self.url = f'{self.url}/search?q={product_name.replace(" ", "+")}'
 
         try:
             response = requests.get(self.url)
@@ -85,19 +79,19 @@ class PriceRunnerAPI:
         return self.products
 
     def get_product_by_name(self, product_name):
-        query = "SELECT * FROM mytable WHERE name = %s"
+        query = "SELECT * FROM mytable WHERE name = ?"
         result = self.db.execute_query(query, (product_name,))
         if result:
             return jsonify(result)
         return jsonify({'message': 'Product not found'}), 404
 
     def update_product_price(self, product_name, new_price):
-        query = "UPDATE mytable SET price = %s WHERE name = %s"
-        self.db.execute_update(query, (product_name, new_price))
+        query = "UPDATE mytable SET price = ? WHERE name = ?"
+        self.db.execute_update(query, (new_price, product_name))
         return jsonify({'message': 'Product price updated successfully'})
 
     def delete_product(self, product_name):
-        query = "DELETE FROM mytable WHERE name = %s"
+        query = "DELETE FROM mytable WHERE name = ?"
         self.db.execute_update(query, (product_name,))
         return jsonify({'message': 'Product deleted successfully'})
 
@@ -106,7 +100,7 @@ class PriceRunnerAPI:
         def search_route(product_name):
             try:
                 products = self.search_product(product_name)
-                insert_query = "INSERT INTO mytable (name, ifo, price, link) VALUES (%s, %s, %s, %s)"
+                insert_query = "INSERT INTO mytable (name, info, price, link) VALUES (?, ?, ?, ?)"
 
                 for product in products:
                     data_to_insert = (product.name, product.info, product.price, product.link)
