@@ -4,4 +4,7 @@
     <file url="file://$PROJECT_DIR$/database.py" dialect="SQLite" />
     <file url="file://$PROJECT_DIR$/scraper.py" dialect="SQLite" />
   </component>
+  <component name="SqlResolveMappings">
+    <file url="file://$PROJECT_DIR$/scraper.py" scope="{&quot;node&quot;:{  &quot;@negative&quot;:&quot;1&quot;,  &quot;group&quot;:{   &quot;@kind&quot;:&quot;root&quot;,   &quot;node&quot;:{    &quot;@negative&quot;:&quot;1&quot;   }  } }}" />
+  </component>
 </project>
