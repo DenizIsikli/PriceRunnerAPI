@@ -95,7 +95,7 @@ class PriceRunnerAPI:
 
                 if products:
                     response_str = '\n'.join(f"{i+1}: {product}" for i, product in enumerate(products))
-                    print(response_str)
+                    print(f"{response_str}\n")
                     return jsonify(products)
                 else:
                     return jsonify({'message': 'No products found'}), 404
