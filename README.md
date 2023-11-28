@@ -1,24 +1,33 @@
 # PriceRunnerAPI
 
-PriceRunnerAPI is a RESTful API that allows you to search for products on the Danish version of PriceRunner and retrieve product information in a structured format.
+PriceRunnerAPI is a Flask-based RESTful API designed to facilitate searching for products on the Danish version of PriceRunner. It retrieves product information in a structured format.
 
-## Base URL
+## Installation and Setup
 
-The base URL for the PriceRunnerAPI is `https://rapidapi.com/denizisikli5/api/pricerunner`
+To run the PriceRunnerAPI, follow these steps:
 
-## Versioning
+1. Clone the repository:
 
-To ensure backward compatibility, the API is versioned. The current version is `v1`. You should specify the version in the URL when making requests.
+    ```bash
+    git clone https://github.com/your-username/pricerunner-api.git
+    ```
 
-## Authentication
+2. Install dependencies:
 
-Authentication is not required for most endpoints. However, some endpoints may require API key authentication in the future.
+    ```bash
+    cd pricerunner-api
+    pip install -r requirements.txt
+    ```
 
-## Errors
+3. Run the application:
 
-The API uses standard HTTP status codes to indicate the success or failure of a request. Detailed error messages will be included in the response body.
+    ```bash
+    python app.py
+    ```
 
-## Endpoints
+## Usage
+
+The PriceRunnerAPI exposes several endpoints for product-related operations:
 
 ### Search for a Product
 
@@ -28,4 +37,35 @@ The API uses standard HTTP status codes to indicate the success or failure of a 
 - **Parameters:**
   - `product_name` (string): The name of the product to search for.
 
-This API is designed to provide easy access to product information from PriceRunner Denmark. You can use it to search for products. Enjoy exploring the world of products with PriceRunnerAPI!
+### Get Product Information
+
+- **URL:** `/products/<product_name>`
+- **Methods:** GET, PUT, DELETE
+- **Description:** Perform operations on a specific product.
+  - `GET`: Retrieve details of a product by its name.
+  - `PUT`: Update the price of a product by providing a new price in the request body (JSON format).
+  - `DELETE`: Delete a product by its name.
+
+## Database Integration
+
+The PriceRunnerAPI integrates with a SQLite database named `Pricerunner.db` to store and manage product information. Ensure the database is set up and accessible before running the application.
+
+## Dependencies
+
+- Flask: Web framework for building the API.
+- Flask-RESTful: Extension for creating REST APIs with Flask.
+- Requests: Library for making HTTP requests.
+- BeautifulSoup: For web scraping and parsing HTML data.
+- Dataclasses: Provides a decorator for quickly defining classes with a set of fields.
+
+## Contributions
+
+Contributions to enhance the functionality, add new features, or fix issues are welcome. Please submit pull requests or report any bugs via GitHub issues.
+
+## Disclaimer
+
+This project is for educational purposes and is not affiliated with PriceRunner. Use the API responsibly and ensure compliance with PriceRunner's terms of service when accessing their data.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
