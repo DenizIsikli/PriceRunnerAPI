@@ -31,10 +31,14 @@ class Database:
         except sqlite3.Error as e:
             print(f"Error creating table: {e}")
 
+    @staticmethod
+    def clean_price(price_str):
+        return int(''.join(filter(str.isdigit, price_str)))
+
     def add_products(self, products):
         try:
             cursor = self.conn.cursor()
-            # Prepare a list of tuples for the executemany statement
+
             product_data = [
                 (product.name, product.info, self.clean_price(product.price), product.link)
                 for product in products
@@ -47,10 +51,6 @@ class Database:
             self.conn.commit()
         except sqlite3.Error as e:
             print(f"Error adding products: {e}")
-
-    @staticmethod
-    def clean_price(price_str):
-        return int(''.join(filter(str.isdigit, price_str)))
 
     def get_product_by_name(self, product_name):
         try:
