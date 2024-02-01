@@ -1,5 +1,5 @@
 import pytest
-from scraper import PriceRunnerAPI, Product
+from PricerunnerAPI import PriceRunnerAPI, Product
 
 
 @pytest.fixture

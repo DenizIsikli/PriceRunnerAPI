@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, g, current_app
 from flask_restful import Api
 import requests
 from bs4 import BeautifulSoup
@@ -17,6 +17,7 @@ class Product:
 class PriceRunnerAPI:
     def __init__(self):
         self.app = Flask(__name__)
+        self.app.config['DATABASE'] = 'Pricerunner.db'
         self.api = Api(self.app)
         self.url = "https://www.pricerunner.dk"
         self.products = []
@@ -87,14 +88,21 @@ class PriceRunnerAPI:
         return jsonify({'message': 'Failed to delete product'}), 500
 
     def run(self):
+        @self.app.teardown_appcontext
+        def close_db_connection(exception=None):
+            db = g.pop('db', None)
+            if db is not None:
+                db.close_connection()
+
         @self.app.route('/search/<product_name>')
         def search_route(product_name):
             try:
-                # self.db.add_product(product)
                 products = self.search_product(product_name)
 
                 if products:
-                    response_str = '\n'.join(f"{i+1}: {product}" for i, product in enumerate(products))
+                    self.db.add_products(products)
+
+                    response_str = '\n'.join(f"{i + 1}: {product}" for i, product in enumerate(products))
                     print(f"{response_str}\n")
                     return jsonify(products)
                 else:
@@ -109,7 +117,7 @@ class PriceRunnerAPI:
                 return self.get_product_by_name(product_name)
 
             elif request.method == 'PUT':
-                new_price = request.json.get('price')  # Assume updating the price
+                new_price = request.json.get('price')
                 return self.update_product_price(product_name, new_price)
 
             elif request.method == 'DELETE':
