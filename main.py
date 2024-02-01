@@ -1,4 +1,4 @@
-from scraper import PriceRunnerAPI
+from PricerunnerAPI import PriceRunnerAPI
 
 
 def main():
