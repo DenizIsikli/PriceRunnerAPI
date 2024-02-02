@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g, current_app
+from flask import Flask, jsonify, request, g
 from flask_restful import Api
 import requests
 from bs4 import BeautifulSoup
@@ -35,7 +35,6 @@ class PriceRunnerAPI:
         price_element = item_div.find('span', class_='pr-yp1q6p')
         link_element = item_div.find('a')['href']
 
-        # Extract product information in text format within each product's container
         name = name_element.text if name_element else None
         info = info_element.text if info_element else None
         price = price_element.text.replace('\xa0', '') if price_element else None
