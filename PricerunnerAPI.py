@@ -28,8 +28,7 @@ class PriceRunnerAPI:
         except Exception as e:
             print(f"Error connecting to the database: {e}")
 
-    @staticmethod
-    def scrape_product_data(item_div):
+    def scrape_product_data(self, item_div):
         name_element = item_div.find('h3', class_='pr-c6rk6p')
         info_element = item_div.find('p', class_='pr-f6mg9h')
         price_element = item_div.find('span', class_='pr-yp1q6p')
@@ -38,7 +37,7 @@ class PriceRunnerAPI:
         name = name_element.text if name_element else None
         info = info_element.text if info_element else None
         price = price_element.text.replace('\xa0', '') if price_element else None
-        link = f"https://www.pricerunner.dk{link_element}" if link_element else None
+        link = f"{self.url}{link_element}" if link_element else None
 
         return Product(name, info, price, link)
 
