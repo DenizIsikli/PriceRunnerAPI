@@ -48,7 +48,7 @@ The PriceRunnerAPI exposes several endpoints for product-related operations:
 
 ## Database Integration
 
-The PriceRunnerAPI integrates with a SQLite database named `Pricerunner.db` to store and manage product information. Ensure the database is set up and accessible before running the application.
+The PriceRunnerAPI integrates with a SQLite database named `Pricerunner.db` to store and manage product information.
 
 ## Dependencies
 
@@ -57,14 +57,6 @@ The PriceRunnerAPI integrates with a SQLite database named `Pricerunner.db` to s
 - Requests: Library for making HTTP requests.
 - BeautifulSoup: For web scraping and parsing HTML data.
 - Dataclasses: Provides a decorator for quickly defining classes with a set of fields.
-
-## Contributions
-
-Contributions to enhance the functionality, add new features, or fix issues are welcome. Please submit pull requests or report any bugs via GitHub issues.
-
-## Disclaimer
-
-This project is for educational purposes and is not affiliated with PriceRunner. Use the API responsibly and ensure compliance with PriceRunner's terms of service when accessing their data.
 
 ## License
 
