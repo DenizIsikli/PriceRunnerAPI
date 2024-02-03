@@ -1,5 +1,4 @@
-beautifulsoup4==4.12.2
-cachetools==5.3.1
+beautifulsoup4==4.12.3
 Flask==2.3.2
 Flask_RESTful==0.3.10
 Requests==2.31.0
