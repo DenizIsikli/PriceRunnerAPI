@@ -93,7 +93,7 @@ class PriceRunnerAPI:
             if db is not None:
                 db.close_connection()
 
-        @self.app.route('/search/<product_name>')
+        @self.app.route('/search/<product_name>', methods=['GET'])
         def search_route(product_name):
             try:
                 products = self.search_product(product_name)
