@@ -5,6 +5,7 @@ class Database:
     def __init__(self, db_name):
         self.db_name = db_name
         self.conn = self.create_connection(db_name)
+        self.cursor = self.conn.cursor()
         self.create_table()
 
     @staticmethod
@@ -18,8 +19,7 @@ class Database:
 
     def create_table(self):
         try:
-            cursor = self.conn.cursor()
-            cursor.execute('''
+            self.cursor.execute('''
                 CREATE TABLE IF NOT EXISTS Products (
                     name TEXT NOT NULL,
                     info TEXT,
@@ -37,14 +37,12 @@ class Database:
 
     def add_products(self, products):
         try:
-            cursor = self.conn.cursor()
-
             product_data = [
                 (product.name, product.info, self.clean_price(product.price), product.link)
                 for product in products
             ]
 
-            cursor.executemany('''
+            self.cursor.executemany('''
                 INSERT INTO Products (name, info, price, link)
                 VALUES (?, ?, ?, ?)
             ''', product_data)
@@ -54,9 +52,8 @@ class Database:
 
     def get_product_by_name(self, product_name):
         try:
-            cursor = self.conn.cursor()
-            cursor.execute("SELECT * FROM Products WHERE name = ?", (product_name,))
-            result = cursor.fetchall()
+            self.cursor.execute("SELECT * FROM Products WHERE name = ?", (product_name,))
+            result = self.cursor.fetchall()
             return result
         except sqlite3.Error as e:
             print(f"Error retrieving product: {e}")
@@ -64,24 +61,21 @@ class Database:
 
     def update_product_price(self, product_name, new_price):
         try:
-            cursor = self.conn.cursor()
-            cursor.execute("UPDATE Products SET price = ? WHERE name = ?", (self.clean_price(new_price), product_name))
+            self.cursor.execute("UPDATE Products SET price = ? WHERE name = ?", (self.clean_price(new_price), product_name))
             self.conn.commit()
         except sqlite3.Error as e:
             print(f"Error updating product price: {e}")
 
     def delete_product(self, product_name):
         try:
-            cursor = self.conn.cursor()
-            cursor.execute("DELETE FROM Products WHERE name = ?", (product_name,))
+            self.cursor.execute("DELETE FROM Products WHERE name = ?", (product_name,))
             self.conn.commit()
         except sqlite3.Error as e:
             print(f"Error deleting product: {e}")
 
     def clear_table(self):
         try:
-            cursor = self.conn.cursor()
-            cursor.execute("DELETE FROM Products")
+            self.cursor.execute("DELETE FROM Products")
             self.conn.commit()
         except sqlite3.Error as e:
             print(f"Error clearing table: {e}")

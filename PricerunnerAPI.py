@@ -67,28 +67,11 @@ class PriceRunnerAPI:
 
         return self.products
 
-    def get_product_by_name(self, product_name):
-        result = self.db.get_product_by_name(product_name)
-        if result:
-            return jsonify(result)
-        return jsonify({'message': 'Product not found'}), 404
-
-    def update_product_price(self, product_name, new_price):
-        success = self.db.update_product_price(product_name, new_price)
-        if success:
-            return jsonify({'message': 'Product price updated successfully'})
-        return jsonify({'message': 'Failed to update product price'}), 500
-
-    def delete_product(self, product_name):
-        success = self.db.delete_product(product_name)
-        if success:
-            return jsonify({'message': 'Product deleted successfully'})
-        return jsonify({'message': 'Failed to delete product'}), 500
-
     def run(self):
         @self.app.teardown_appcontext
         def close_db_connection(exception=None):
             db = g.pop('db', None)
+
             if db is not None:
                 db.close_connection()
 
@@ -101,7 +84,6 @@ class PriceRunnerAPI:
                     self.db.add_products(products)
 
                     response_str = '\n'.join(f"{i + 1}: {product}" for i, product in enumerate(products))
-                    print(f"{response_str}\n")
                     return jsonify(products)
                 else:
                     return jsonify({'message': 'No products found'}), 404
@@ -124,3 +106,21 @@ class PriceRunnerAPI:
             return jsonify({'error': 'Invalid request method'}), 405
 
         self.app.run(port=self.port, debug=True)
+
+    def get_product_by_name(self, product_name):
+        result = self.db.get_product_by_name(product_name)
+        if result:
+            return jsonify(result)
+        return jsonify({'message': 'Product not found'}), 404
+
+    def update_product_price(self, product_name, new_price):
+        success = self.db.update_product_price(product_name, new_price)
+        if success:
+            return jsonify({'message': 'Product price updated successfully'})
+        return jsonify({'message': 'Failed to update product price'}), 500
+
+    def delete_product(self, product_name):
+        success = self.db.delete_product(product_name)
+        if success:
+            return jsonify({'message': 'Product deleted successfully'})
+        return jsonify({'message': 'Failed to delete product'}), 500
