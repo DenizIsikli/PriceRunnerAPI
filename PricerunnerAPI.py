@@ -84,6 +84,7 @@ class PriceRunnerAPI:
                     self.db.add_products(products)
 
                     response_str = '\n'.join(f"{i + 1}: {product}" for i, product in enumerate(products))
+                    print(f"{response_str}\n")
                     return jsonify(products)
                 else:
                     return jsonify({'message': 'No products found'}), 404
